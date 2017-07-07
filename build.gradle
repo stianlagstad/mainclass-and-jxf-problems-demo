@@ -82,7 +82,3 @@ jar {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it).matching{exclude{it.path.contains('META-INF')}} }
     }
 }
-
-shadowJar {
-    mergeServiceFiles()
-}
