@@ -1,0 +1,88 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "no.nils:wsdl2java:0.10"
+    }
+}
+
+plugins {
+    id 'scala'
+    id 'application'
+
+    // Creating fat/über JARs (https://github.com/johnrengelman/shadow)
+    id "com.github.johnrengelman.shadow" version "1.2.4"
+}
+
+apply plugin: 'no.nils.wsdl2java'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.scala-lang:scala-library:2.12.1'
+
+    compile('org.apache.cxf:cxf-rt-frontend-jaxws:3.1.6')
+    compile('org.apache.cxf:cxf-rt-transports-http:3.1.6')
+    compile('org.apache.cxf:cxf-rt-ws-security:3.1.6')
+
+    // Scalatra
+    compile group: 'org.scalatra', name: 'scalatra_2.12', version: '2.5.0'
+    compile group: 'org.scalatra', name: 'scalatra-scalatest_2.12', version: '2.5.0'
+    compile group: 'org.scalatra', name: 'scalatra-json_2.12', version: '2.5.0'
+    compile group: 'org.scalatra', name: 'scalatra-swagger_2.12', version: '2.5.0'
+
+    compile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
+
+    // Logging
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.6'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.6'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.6'
+    compile group: 'com.typesafe.scala-logging', name: 'scala-logging_2.12', version: '3.5.0'
+
+    // Server
+    compile group: 'org.eclipse.jetty', name: 'jetty-webapp', version: '9.4.0.v20161208'
+    compile group: 'org.eclipse.jetty', name: 'jetty-plus', version: '9.4.0.v20161208'
+
+    // wsdl
+    wsdl2java 'org.jvnet.jaxb2_commons:jaxb2-basics-runtime:0.11.+'
+    wsdl2java 'org.jvnet.jaxb2_commons:jaxb2-value-constructor:3.0'
+
+}
+
+def generatedSourceDir = 'generated-sources'
+def generatedSources = "$generatedSourceDir/java"
+wsdl2java {
+    generatedWsdlDir = file(generatedSources)
+    wsdlDir = file("src/main/resources/wsdl")
+    wsdlsToGenerate = [
+            [
+                    "-autoNameResolution",
+                    "-xjc-Xvalue-constructor",
+                    "-b", "${projectDir}/src/main/resources/jaxws/bindings.xml",
+                    "${wsdlDir}/calculator.wsdl"
+            ]
+    ]
+}
+
+mainClassName = "com.shadowjarcxfproblem.JettyLauncher"
+
+// Include dependent libraries in archive.
+jar {
+    manifest {
+        attributes "Main-Class": "$mainClassName"
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+shadowJar {
+    mergeServiceFiles()
+}

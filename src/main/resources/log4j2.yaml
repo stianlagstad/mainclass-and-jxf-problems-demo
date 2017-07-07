@@ -1,0 +1,21 @@
+Configuration:
+  status: warn
+
+  Appenders:
+    Console:
+      name: Console
+      target: SYSTEM_OUT
+      PatternLayout:
+        Pattern: "[MyTestApp] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %C.%M#%L: %msg%n"
+
+  Loggers:
+    Logger:
+      name: "com.shadowjarcxfproblem"
+      level: debug
+      additivity: false
+      AppenderRef:
+        - ref: Console
+    Root:
+      level: warn
+      AppenderRef:
+        - ref: Console
