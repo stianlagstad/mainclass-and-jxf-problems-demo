@@ -1,5 +1,5 @@
 # mainclass-and-jxf-problems-demo
-This is a demo to reproduce two problems, one with not finding the main class name and one with jxf.
+This is a demo that reproduces two problems:
 
 Problem 1: main class not found. Reproduce with:  
 - `gradle clean build && java -Xdebug -jar build/libs/shadowjarcxfproblem.jar`
