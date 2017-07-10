@@ -23,4 +23,4 @@ gradle-app.setting
 # Generated WSDL classes
 generated-sources/
 
-shadowjarcxfproblem.iml
+*.iml
